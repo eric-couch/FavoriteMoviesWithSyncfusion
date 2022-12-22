@@ -1,0 +1,65 @@
+﻿@page "/search"
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Data
+@using FavoriteMovies.Shared
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Notifications
+
+<label>Search</label>
+<div class="container-fluid mb-5">
+    <div class="row">
+        <div class="col-3">
+            <SfTextBox @bind-Value="@searchTerm" Placeholder="Search" />
+        </div>
+        <div class="col-3">
+            <SfNumericTextBox @bind-Value="@year" Placeholder="Year" />
+        </div>
+        <div class="col-1">
+            <SfButton @onclick="SearchOMDB">Search</SfButton>
+        </div>
+    </div>
+</div>
+
+@if (OMDBMovies is not null)
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <SfPager @ref="Page" PageSize="10" TotalItemsCount="@totalItems" ItemClick="PageClick">
+                </SfPager>
+                <SfGrid ID="GridMovies" @ref="MoviesGrid" TValue="MovieSearchResultItem" DataSource="OMDBMovies"
+                    Toolbar="@(new List<object>() {
+                        new ItemModel() { Text = "Add Movies", PrefixIcon = "e-add", HtmlAttributes=new Dictionary<string, object>() {{ "title" , "Add Movies" } }, Id ="GridMovieAdd"}
+                    })"
+                    AllowFiltering="false" AllowReordering="true" AllowResizing="true" AllowSorting="true"
+                    ContextMenuItems="@(new List<object>() { "AutoFit", "AutoFitAll", "SortAscending", "SortDescending", "Cancel", "FirstPage", "PrevPage","LastPage", "NextPage"})">
+                    <GridEditSettings AllowAdding="false" AllowEditing="false" AllowEditOnDblClick="false"></GridEditSettings>
+                    <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+                    <GridEvents     RowSelected="GetSelectedRecords"
+                                    OnToolbarClick="ToolbarClickHandler"
+                                    TValue="MovieSearchResultItem"></GridEvents>
+                    <GridColumns>
+                        <GridColumn Field=@nameof(MovieSearchResultItem.imdbID) IsPrimaryKey="true" Visible="false" />
+                        <GridColumn Field=@nameof(MovieSearchResultItem.Title) />
+                        <GridColumn Field=@nameof(MovieSearchResultItem.Year) Width="120" />
+                    </GridColumns>
+                </SfGrid>
+            </div>
+            <div class="col-4">
+                <img src="@(selectedPoster ?? "")" />
+            </div>
+        </div>
+    </div>
+}
+<SfToast    @ref="ToastObj" Title="Added Movie"
+            ShowProgressBar="true" 
+            ShowCloseButton="true"
+            Content="@toastContent" 
+            CssClass="e-toast-success"
+            Icon="e-check-large"
+            Timeout="3000">
+    <ToastPosition X="Center" Y="Top"></ToastPosition>
+</SfToast>
